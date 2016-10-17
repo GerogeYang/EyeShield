@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.yj.eyeshield">
 
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"></uses-permission>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -22,6 +23,10 @@
 
         <service
             android:name=".FilterService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".SurfaceFilterService"
             android:enabled="true"
             android:exported="true"></service>
     </application>

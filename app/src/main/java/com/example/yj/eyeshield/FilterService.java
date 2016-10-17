@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -39,6 +40,7 @@ public class FilterService extends Service {
     public void onCreate() {
         super.onCreate();
         filterView = new FilterView(this, MainActivity.a);
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             nFlags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
@@ -100,6 +102,7 @@ class FilterView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (FilterService.filterOn) {
+            canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
             mLoadPaint.setColor(Color.argb(100, 255, 140, 0));
             mLoadPaint.setStyle(Paint.Style.FILL);
             canvas.drawRect(0, 0 - (FilterService.activity.getStatusBarHeight()), MainActivity.screenWidth, MainActivity.screenHeight + FilterService.activity.getStatusBarHeight(), mLoadPaint);

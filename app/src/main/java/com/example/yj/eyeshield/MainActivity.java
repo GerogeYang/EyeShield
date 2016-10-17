@@ -10,9 +10,10 @@ import android.preference.SwitchPreference;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Display;
+import android.widget.SeekBar;
 
 
-public class MainActivity extends AppCompatActivity implements Preference.OnPreferenceClickListener {
+public class MainActivity extends AppCompatActivity implements Preference.OnPreferenceClickListener, SeekBar.OnSeekBarChangeListener {
 
 
     static MainActivity a;
@@ -20,6 +21,8 @@ public class MainActivity extends AppCompatActivity implements Preference.OnPref
     static int screenWidth, screenHeight;
     static SwitchPreference switchPreference;
     static boolean activated;
+    static int alpha, red, green, blue;
+    SeekBar setAlpha, setRed, setGreen, setBlue;
 
     Handler mHanlder = new Handler() {
         @Override
@@ -34,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements Preference.OnPref
                     //System.out.println("" + activated);
                     break;
                 default:
-                   // System.out.println("" + activated);
+                    // System.out.println("" + activated);
                     break;
             }
             checkStatus(activated);
@@ -42,14 +45,23 @@ public class MainActivity extends AppCompatActivity implements Preference.OnPref
     };
 
 
+    public void initSetColor(int malpha, int mred, int mgreen, int mblue) {
+        alpha = malpha;
+        red = mred;
+        green = mgreen;
+        blue = mblue;
+    }
+
     public void checkStatus(boolean flag) {
         if (!flag && (serviceIntent != null)) {
             stopService(serviceIntent);
             serviceIntent = null;
+            SurfaceFilterService.setFilterOn(false);
         } else if (flag && (serviceIntent == null)) {
-            serviceIntent = new Intent(MainActivity.this, FilterService.class);
+            serviceIntent = new Intent(MainActivity.this, SurfaceFilterService.class);
             startService(serviceIntent);
-            onBackPressed();
+            SurfaceFilterService.setFilterOn(true);
+            //onBackPressed();
         }
     }
 
@@ -77,19 +89,29 @@ public class MainActivity extends AppCompatActivity implements Preference.OnPref
 
         getFragmentManager().beginTransaction().replace(R.id.set, new PrefsFragment()).commit();
         mHanlder.sendEmptyMessage(2);
+
+        setAlpha = (SeekBar) findViewById(R.id.setAlpha);
+        setRed = (SeekBar) findViewById(R.id.setRed);
+        setGreen = (SeekBar) findViewById(R.id.setGreen);
+        setBlue = (SeekBar) findViewById(R.id.setBlue);
+        setAlpha.setOnSeekBarChangeListener(this);
+        setRed.setOnSeekBarChangeListener(this);
+        setGreen.setOnSeekBarChangeListener(this);
+        setBlue.setOnSeekBarChangeListener(this);
+        initSetColor(setAlpha.getProgress(), setRed.getProgress(), setGreen.getProgress(), setBlue.getProgress());
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        FilterService.setFilterOn(false);
+        //FilterService.setFilterOn(false);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        FilterService.setFilterOn(true);
+        //FilterService.setFilterOn(true);
     }
 
 
@@ -110,6 +132,34 @@ public class MainActivity extends AppCompatActivity implements Preference.OnPref
         return true;
     }
 
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        switch (seekBar.getId()) {
+            case R.id.setAlpha:
+                alpha = progress;
+                break;
+            case R.id.setRed:
+                red = progress;
+                break;
+            case R.id.setGreen:
+                green = progress;
+                break;
+            case R.id.setBlue:
+                blue = progress;
+                break;
+        }
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
 
     public static class PrefsFragment extends PreferenceFragment {
 
@@ -126,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements Preference.OnPref
             } else {
                 activated = false;
             }
-            ;
         }
     }
 
