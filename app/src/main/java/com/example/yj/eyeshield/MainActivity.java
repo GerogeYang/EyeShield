@@ -13,16 +13,17 @@ import android.view.Display;
 import android.widget.SeekBar;
 
 
-public class MainActivity extends AppCompatActivity implements Preference.OnPreferenceClickListener, SeekBar.OnSeekBarChangeListener {
+public class MainActivity extends AppCompatActivity implements Preference.OnPreferenceClickListener, SeekBarPreference.OnSeekBarPrefsChangeListener {
 
 
     static MainActivity a;
     static Intent serviceIntent;
     static int screenWidth, screenHeight;
     static SwitchPreference switchPreference;
+    static SeekBarPreference setAlphaPreference, setRedPreference, setGreenPreference, setBluePreference;
     static boolean activated;
     static int alpha, red, green, blue;
-    SeekBar setAlpha, setRed, setGreen, setBlue;
+
 
     Handler mHanlder = new Handler() {
         @Override
@@ -44,13 +45,6 @@ public class MainActivity extends AppCompatActivity implements Preference.OnPref
         }
     };
 
-
-    public void initSetColor(int malpha, int mred, int mgreen, int mblue) {
-        alpha = malpha;
-        red = mred;
-        green = mgreen;
-        blue = mblue;
-    }
 
     public void checkStatus(boolean flag) {
         if (!flag && (serviceIntent != null)) {
@@ -75,6 +69,10 @@ public class MainActivity extends AppCompatActivity implements Preference.OnPref
     }
 
 
+    public void initSetColor() {
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,18 +85,15 @@ public class MainActivity extends AppCompatActivity implements Preference.OnPref
         screenWidth = display.getWidth();
         screenHeight = display.getHeight();
 
-        getFragmentManager().beginTransaction().replace(R.id.set, new PrefsFragment()).commit();
-        mHanlder.sendEmptyMessage(2);
 
-        setAlpha = (SeekBar) findViewById(R.id.setAlpha);
-        setRed = (SeekBar) findViewById(R.id.setRed);
-        setGreen = (SeekBar) findViewById(R.id.setGreen);
-        setBlue = (SeekBar) findViewById(R.id.setBlue);
-        setAlpha.setOnSeekBarChangeListener(this);
-        setRed.setOnSeekBarChangeListener(this);
-        setGreen.setOnSeekBarChangeListener(this);
-        setBlue.setOnSeekBarChangeListener(this);
-        initSetColor(setAlpha.getProgress(), setRed.getProgress(), setGreen.getProgress(), setBlue.getProgress());
+        getFragmentManager().beginTransaction().replace(R.id.set, new SetFragment()).commit();
+        getFragmentManager().beginTransaction().replace(R.id.setAlpha, new SetAlphaFragement()).commit();
+        getFragmentManager().beginTransaction().replace(R.id.setRed, new SetRedFragement()).commit();
+        getFragmentManager().beginTransaction().replace(R.id.setGreen, new SetGreenFragement()).commit();
+        getFragmentManager().beginTransaction().replace(R.id.setBlue, new SetBlueFragement()).commit();
+
+
+        mHanlder.sendEmptyMessage(2);
     }
 
 
@@ -117,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements Preference.OnPref
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-
+        System.out.println("YJJJ");
         if (preference.getKey().equals("setFilter")) {
             if (((SwitchPreference) preference).isChecked()) {
 
@@ -132,43 +127,66 @@ public class MainActivity extends AppCompatActivity implements Preference.OnPref
         return true;
     }
 
+    /*   @Override
+       public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+           System.out.println("YJ2");
+           SeekBarPreference seekBarPreference = (SeekBarPreference) preference;
+           switch (seekBarPreference.getKey()) {
+               case "setalpha":
+                   alpha = seekBarPreference.getMprogress();
+                   break;
+               case "setred":
+                   red = (int)newValue;
+                   break;
+               case "setgreen":
+                   green = seekBarPreference.getMprogress();
+                   break;
+               case "setblue":
+                   blue = seekBarPreference.getMprogress();
+                   break;
+           }
+
+           return true;
+       }
+   */
     @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        switch (seekBar.getId()) {
-            case R.id.setAlpha:
+    public void onStopTrackingTouch(String key, SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(String key, SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onProgressChanged(String key, SeekBar seekBar, int progress, boolean fromUser) {
+        switch (key) {
+            case "setalpha":
                 alpha = progress;
                 break;
-            case R.id.setRed:
+            case "setred":
                 red = progress;
                 break;
-            case R.id.setGreen:
+            case "setgreen":
                 green = progress;
                 break;
-            case R.id.setBlue:
+            case "setblue":
                 blue = progress;
                 break;
         }
     }
 
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
 
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-
-    }
-
-
-    public static class PrefsFragment extends PreferenceFragment {
+    public static class SetFragment extends PreferenceFragment {
 
         static SwitchPreference mSwitchPreference;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.preference);
+            addPreferencesFromResource(R.xml.setpreference);
             switchPreference = (SwitchPreference) getPreferenceManager().findPreference("setFilter");
             switchPreference.setOnPreferenceClickListener(a);
             if (switchPreference.isChecked()) {
@@ -179,4 +197,55 @@ public class MainActivity extends AppCompatActivity implements Preference.OnPref
         }
     }
 
+    public static class SetAlphaFragement extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.setalphapreference);
+            setAlphaPreference = (SeekBarPreference) findPreference("setalpha");
+            setAlphaPreference.setMax(255);
+            setAlphaPreference.setDefaultProgressValue(100);
+            setAlphaPreference.setOnSeekBarPrefsChangeListener(a);
+            alpha = setAlphaPreference.getProgress();
+        }
+    }
+
+    public static class SetRedFragement extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.setredpreference);
+            setRedPreference = (SeekBarPreference) findPreference("setred");
+            setRedPreference.setMax(255);
+            setRedPreference.setDefaultProgressValue(100);
+            setRedPreference.setOnSeekBarPrefsChangeListener(a);
+            red = setRedPreference.getProgress();
+        }
+    }
+
+    public static class SetGreenFragement extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.setgreenpreference);
+            setGreenPreference = (SeekBarPreference) findPreference("setgreen");
+            setGreenPreference.setMax(255);
+            setGreenPreference.setDefaultProgressValue(100);
+            setGreenPreference.setOnSeekBarPrefsChangeListener(a);
+            green = setGreenPreference.getProgress();
+        }
+    }
+
+    public static class SetBlueFragement extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.setbluepreference);
+            setBluePreference = (SeekBarPreference) findPreference("setblue");
+            setBluePreference.setMax(255);
+            setBluePreference.setDefaultProgressValue(100);
+            setBluePreference.setOnSeekBarPrefsChangeListener(a);
+            blue = setBluePreference.getProgress();
+        }
+    }
 }
