@@ -4,8 +4,8 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="setalpha">setAlpha:</string>
-    <string name="setred">setRed:</string>
-    <string name="setgreen">setGreen:</string>
-    <string name="setblue">setBlue:</string>
+    <string name="setalpha">透明度</string>
+    <string name="setred">红色</string>
+    <string name="setgreen">绿色</string>
+    <string name="setblue">蓝色</string>
 </resources>
